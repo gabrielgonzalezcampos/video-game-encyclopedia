@@ -1,22 +1,60 @@
-# Video Game Encyclopedia
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/39042628/69937490-f246aa00-14a8-11ea-89ad-073891b7b4a9.png" alt="Gaming">
-</p> 
+# Video Game Multidimensional Database
 
-Visit [Kaggle page](https://www.kaggle.com/jummyegg/rawg-game-dataset) for the full Game Dataset
+Forked from [Trung Hoang video-game-encyclopedia project](https://github.com/trung-hn/video-game-encyclopedia)
 
+## Description
 
-### Directory Tree
+This project is an enhanced version of the original RAWG video games dataset, transformed into a multidimensional data model that facilitates complex analysis. Unlike the original dataset that consolidated all information into a single CSV file, this version implements a star schema with a central fact table (`games.csv`) and multiple related dimensional tables, optimized for advanced analytical queries.
+
+## Data Structure
+
+### Main Fact Table
+- **games.csv**: Contains basic information about each game (core metrics and attributes)
+
+### Dimensional Tables
+- **game_developers.csv**: Developers of each game
+- **game_genres.csv**: Genres associated with each game
+- **game_metacritic_platforms.csv**: Platform-specific Metacritic scores
+- **game_platforms.csv**: Available platforms for each game and their requirements
+- **game_publishers.csv**: Publishers of each game
+- **game_ratings.csv**: Detailed breakdown of ratings by category
+- **game_status.csv**: Game status statistics (completed, abandoned, etc.)
+- **game_stores.csv**: Stores where each game is available
+- **game_tags.csv**: Descriptive tags associated with each game
+
+### Derived Metrics
+- **game_derived_metrics.csv**: Calculated indicators that enrich the analysis:
+  - `completability_index`: Ratio between beaten / (beaten + dropped)
+  - `consensus_score`: Score combining professional and user ratings
+  - `time_rating_ratio`: Cost per hour of gameplay
+  - `platform_diversity_index`: Cross-platform availability
+  - `acquisition_play_ratio`: Ratio between acquisition and effective play
+
+## Directory Structure
+
 ```
 .
 |-- src
-|   |-- Combine_game_info.ipynb
+|   |-- Generate_csv.ipynb
 |   |-- Get_game_id.ipynb
-|   `-- Get_game_info.ipynb
+|   |-- Get_game_info.ipynb
+|   `-- Combine_game_info.ipynb
 |
 `-- data
-    |-- game_id.csv
-    |-- game_info.csv
+    |-- csv
+    |   |-- game_id.csv
+    |   |-- game_info.csv
+    |   |-- games.csv
+    |   |-- game_developers.csv
+    |   |-- game_genres.csv
+    |   |-- game_metacritic_platforms.csv
+    |   |-- game_platforms.csv
+    |   |-- game_publishers.csv
+    |   |-- game_ratings.csv
+    |   |-- game_status.csv
+    |   |-- game_stores.csv
+    |   |-- game_tags.csv
+    |   |-- game_derived_metrics.csv
     |-- game_id
     |   |-- 1.json
     |   |-- 2.json
@@ -27,68 +65,88 @@ Visit [Kaggle page](https://www.kaggle.com/jummyegg/rawg-game-dataset) for the f
         |-- 2.json
         `-- *.json
 ```
-### How to Start
-`pip3 install -r requirements.txt`
 
-### Steps to replicate the dataset:
-1. Run `Get_game_id.ipynb`. This makes request to all pages in https://api.rawg.io/api/games?page=1 and save one JSON file for **each page** in `./data/game_id/*.json` where `*` is the page number. At the end, `./data/game_id.csv` is created which contains the name and id of each game which is needed for step 2.
-2. Run `Get_game_info.ipynb`. Using the id from Step 1, this script makes request to https://api.rawg.io/api/games/ and save one JSON file for **each game** in `./data/game_info/*.json` where `*` is the game id.
-3. Run `Combine_game_info.ipynb`. This combines data in `./data/game_info/` and saves it as `./data/game_info.csv`. `game_info.csv` contains the **final** dataset
+## Getting Started
 
-#### Important Notes:
-- File sizes: 
-    - `./data/game_id` with 25000 files has the size of ~15MBs. 
-    - `./data/game_info` with 470000 files has the size of ~230MBs
-- To increase the speed of obtaining the data from RAWG API, concurrent programming is applied to step 1 and 2. However, execution time depends greatly on internet connection speed.
-    - Step 1 takes ~1 hour with 32 threads
-    - Step 2 takes ~3-5 hours with 64 threads
-    - Step 3 takes ~2 minutes
-- RAWG API has a limit of 500,000 page views a month. As more games come out in the future, it would be hard to get all game information in one run without exceeding this limitation. 
-- When 1 thread fails while requesting data, it will skip to next game/page automatically. To make sure you get all games from RAWG, you can run Step 1 and Step 2 multiple times. Downloaded files are **skipped** automatically.
+1. Install dependencies:
+```
+pip install -r requirements.txt
+```
 
-#### Limitations:
-- To reduce the file size of downloaded files and the final CSV dataset, **not all** JSON information is downloaded. If you want more customization, you will need to change how the JSON is handled in Step 2
-- Although Multithreading is applied, the whole process can take up to ~6 hours to finish because of the large amount of data.
+## Steps to Replicate the Multidimensional Dataset:
 
-___
-### Context
-This dataset contains 474417 video games on over 50 platforms including mobiles. All game information was obtained using Python with [RAWG API](https://rawg.io/apidocs). This dataset was last updated on **Dec 22nd 2020**. If you are interested in obtaining more recent games, visit the [GitHub](https://github.com/trung-hn/game-encyclopedia) page for more information. I plan to update this dataset annually.
+1. Run `Get_game_id.ipynb`: Retrieves IDs for all games available on the RAWG API.
+2. Run `Get_game_info.ipynb`: Downloads detailed information for each game using the IDs obtained in the previous step.
+3. Run `Generate_csv.ipynb`: Process all the data from previous step to build the multidimensional model, generating the 11 final tables.
 
-### Content
-Each row contains information about one game. There are several columns that have multiple values like platforms, genres, ... In those cases, values are separated by double pipes `||`.
+## Tips
 
-### Column definitions:
-- `id`: An unique ID identifying this Game in RAWG Database
-- `slug`: An unique slug identifying this Game in RAWG Database
-- `name`: Name of the game
-- `metacritic`: Rating of the game on [Metacritic](https://www.metacritic.com/game)
-- `released`: The date the game was released
-- `tba`: To be announced state
-- `updated`: The date the game was last updated
-- `website`: Game Website
-- `rating`: Rating rated by RAWG user
-- `rating_top`: Maximum rating
-- `playtime`: Hours needed to complete the game
-- `achievements_count`: Number of achievements in game
-- `ratings_count`: Number of RAWG users who rated the game
-- `suggestions_count`: Number of RAWG users who suggested the game
-- `game_series_count`: Number of games in the series
-- `reviews_count`: Number of RAWG users who reviewed the game
-- `platforms`: Platforms game was released on. **Separated** by `||`
-- `developers`: Game developers. **Separated** by `||`
-- `genres`: Game genres. **Separated** by `||`
-- `publishers`: Game publishers. **Separated** by `||`
-- `esrb_rating`: ESRB ratings
-- `added_status_yet`: Number of RAWG users had the game as "Not played"
-- `added_status_owned`: Number of RAWG users had the game as "Owned"
-- `added_status_beaten`: Number of RAWG users had the game as "Completed"
-- `added_status_toplay`: Number of RAWG users had the game as "To play"
-- `added_status_dropped`: Number of RAWG users had the game as "Played but not beaten"
-- `added_status_playing`: Number of RAWG users had the game as "Playing"
+Due to the high volume of data, it's recommended to save the data from steps 1 and 2 in a fast storage device, like an M.2 drive.
 
-### Acknowledgements
-Thanks to [RAWG](https://rawg.io/) for providing easy to use and fast [API](https://rawg.io/apidocs) \
-Icon made by <a href="https://www.flaticon.com/authors/good-ware" title="Good Ware">Good Ware</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
+## Fact Table and Dimensions
 
-### Inspiration
-With this data, one can create a game recommendation platform as well as drawing insights about the gaming industry and gaming trends.
+### Main Fact Table (games.csv)
+| Variable | Type | Description |
+|----------|------|-------------|
+| id | Numeric | Unique game identifier |
+| slug | Text | URL-friendly identifier |
+| name | Text | Game name |
+| released | Date | Release date |
+| metacritic | Numeric | Metacritic score (0-100) |
+| rating | Numeric | Average user rating (0-5) |
+| rating_top | Numeric | Maximum rating received |
+| playtime | Numeric | Average time to complete the game (hours) |
+| esrb_rating | Categorical | Age classification |
+| description_short | Text | Brief game description |
+| website | URL | Official website |
+| added | Numeric | Total users who added the game |
+| screenshots_count | Numeric | Number of screenshots available |
+| background_image | URL | Cover image |
+| metacritic_url | URL | Link to Metacritic page |
+| tba | Boolean | Indicates if it's "to be announced" |
+| updated | Date | Last information update |
+
+### Dimensions (Reference Tables)
+Each dimensional table contains specific attributes and is linked to the fact table through the `game_id` field.
+
+## Advantages of the Multidimensional Model
+
+1. **Facilitates Complex Analysis**: Allows aggregations, filtering, and drill-downs across multiple dimensions.
+2. **Optimizes Storage**: Reduces data redundancy by normalizing information.
+3. **Improves Performance**: More efficient for analytical queries than a flat model.
+4. **Enables Multidimensional Analysis**: Ideal for BI tools and advanced visualization.
+5. **Enables Derived Metrics**: Facilitates calculation of KPIs and complex indicators.
+
+## Use Cases
+
+- Analysis of trends in the video game industry
+- Study of the relationship between critical ratings and popularity
+- Comparisons between genres, platforms, and developers
+- Analysis of user behavior (purchase vs. completion)
+- Creation of recommendation systems based on multiple factors
+
+## Important Notes
+
+- The model is optimized for OLAP analysis, not for transactional operations.
+- Derived metrics allow discovering insights beyond raw data.
+- The star schema facilitates integration with BI tools such as Tableau, Power BI, or web visualization platforms.
+
+## Limitations
+
+- The RAWG API has a limit of 500,000 page views per month.
+- The complete extraction and transformation process can take several hours due to the volume of data.
+
+## Acknowledgements
+
+- To [RAWG](https://rawg.io/) for providing a robust and comprehensive API
+- To [Trung Hoang](https://github.com/trung-hn) for the original project
+
+## Inspiration
+
+This multidimensional model allows for more sophisticated analysis of the video game industry, facilitating the extraction of valuable insights about trends, user preferences, and market behaviors.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+The original work by Trung Hoang (2019) and the additional multidimensional database enhancements are both covered under this license.
