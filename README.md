@@ -147,6 +147,16 @@ This multidimensional model allows for more sophisticated analysis of the video 
 
 ## License
 
+### Code
+
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-The original work by Trung Hoang (2019) and the additional multidimensional database enhancements are both covered under this license.
+### Dataset
+The multidimensional dataset (all CSV files) is licensed under **CC BY-NC-SA 4.0** (Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International).
+
+This means:
+- **BY** — You must give appropriate credit, provide a link to the license, and indicate if changes were made
+- **NC** — You may not use the material for commercial purposes
+- **SA** — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original
+
+For more details on this license, see [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
